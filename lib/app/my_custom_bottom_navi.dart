@@ -25,7 +25,6 @@ class MyCustomBottomNavigation extends StatelessWidget {
     return CustomCupertinoTabScaffold(
         tabBar: CustomCupertinoTabBar(
           items: [
-            _navItemOlustur(TabItem.Kullanicilar),
             _navItemOlustur(TabItem.Konusmalarim),
             _navItemOlustur(TabItem.Profil)
           ],

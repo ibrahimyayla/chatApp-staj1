@@ -3,11 +3,14 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+
 class SystemUser {
   final String userID;
   String email;
   String userName;
   String profilURL;
+  num messageHappy;
+  num imageHappy;
   DateTime createdAt;
   DateTime updatedAt;
   int seviye;
@@ -18,6 +21,8 @@ class SystemUser {
     return {
       'userID': userID,
       'email': email,
+      'messageHappy': messageHappy ?? 2,
+      'imageHappy': imageHappy ?? 2,
 
       /// olustururken bos kalmasın diye kendimiz olusturduk.
       'userName':
@@ -39,6 +44,8 @@ class SystemUser {
         email = map['email'],
         userName = map['userName'],
         profilURL = map['profilURL'],
+        messageHappy = map['messageHappy'],
+        imageHappy = map['imageHappy'],
         createdAt = (map['createdAt'] as Timestamp).toDate(),
         updatedAt = (map['updatedAt'] as Timestamp).toDate(),
         seviye = map['seviye'];
@@ -47,7 +54,7 @@ class SystemUser {
 
   @override
   String toString() {
-    return 'User{userID: $userID, email: $email, userName: $userName, profilURL: $profilURL, createdAt: $createdAt, updatedAt: $updatedAt, seviye: $seviye}';
+    return 'User{userID: $userID, email: $email, userName: $userName, profilURL: $profilURL, createdAt: $createdAt, updatedAt: $updatedAt, seviye: $seviye, messageHappy: $messageHappy, imageHappy: $imageHappy}';
   }
 
   String randomSayiUret() {

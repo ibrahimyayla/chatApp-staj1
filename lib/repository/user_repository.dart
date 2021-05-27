@@ -9,7 +9,10 @@ import 'package:chat_app/services/fake_auth_service.dart';
 import 'package:chat_app/services/firebase_auth_service.dart';
 import 'package:chat_app/services/firebase_storage_service.dart';
 import 'package:chat_app/services/firestore_db_service.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:palette_generator/palette_generator.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:tinycolor/tinycolor.dart';
 
 enum AppMode { DEBUG, RELEASE }
 
@@ -91,9 +94,7 @@ class UserRepository extends AuthBase {
       SystemUser _user = await _firebaseAuthService
           .createUserWithEmailandPassword(email, sifre);
       bool _sonuc = await _firestoreDBService.saveUser(_user);
-      print("_sonuc");
-      print(_sonuc);
-      print("_sonuc");
+
       return _sonuc ? await _firestoreDBService.readUser(_user.userID) : null;
     }
   }
@@ -122,16 +123,17 @@ class UserRepository extends AuthBase {
 
   @override
   Future<String> uploadFile(
-      String userID, String fileType, File profilFoto) async {
+      SystemUser user, String fileType, File profilFoto) async {
     if (appMode == AppMode.DEBUG) {
       return "dosya_indirme_linki";
     } else {
       var profilFotoURL = await _firebaseStorageService.uploadFile(
-          userID, fileType, profilFoto);
-      await _firestoreDBService.updateProfilFoto(userID, profilFotoURL);
+          user.userID, fileType, profilFoto);
+      await _firestoreDBService.updateProfilFoto(user, profilFotoURL);
       return profilFotoURL;
     }
   }
+
 
   Future<List<SystemUser>> getAllUsers() async {
     if (appMode == AppMode.DEBUG) {
@@ -173,7 +175,7 @@ class UserRepository extends AuthBase {
       /// note : Boş stream göndermek için.
       return Future.value(true);
     } else {
-      return await _firestoreDBService.saveMessage(kaydedilecekMesaj);
+      return await _firestoreDBService.saveMessage(currentUser,kaydedilecekMesaj);
     }
   }
 

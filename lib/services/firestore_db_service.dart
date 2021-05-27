@@ -4,27 +4,22 @@ import 'package:chat_app/model/mesaj.dart';
 import 'package:chat_app/model/systemUser.dart';
 import 'package:chat_app/services/database_base.dart';
 import 'package:chat_app/services/firebase_auth_service.dart';
-
+import 'package:flutter/cupertino.dart';
+import 'package:palette_generator/palette_generator.dart';
+import 'package:tinycolor/tinycolor.dart';
 class FirestoreDBService implements DBBase {
   final FirebaseFirestore _firebaseDB = FirebaseFirestore.instance;
 
   @override
   Future<bool> saveUser(SystemUser user) async {
     ///note : addall diyerek map e eleman ekleyebiliyoruz.
-    print("user");
-    print("user");
-    print("user");
-    print(user);
-    print("user");
-    print("user");
-    print("user");
+
 
     DocumentSnapshot _okunanUser =
         await _firebaseDB.doc("users/${user.userID}").get();
     if (_okunanUser.data() == null) {
-      print("sss");
-      print("2222");
-      print(user.userID);
+
+      // print(user.userID);
       try {
         await _firebaseDB
             .collection("users")
@@ -32,9 +27,9 @@ class FirestoreDBService implements DBBase {
             .set(user.toMap());
         return true;
       } catch (_) {
-        print("22");
-        print(_);
-        print("22");
+        // print("22");
+        // print(_);
+        // print("22");
         return false;
       }
     } else {
@@ -44,7 +39,6 @@ class FirestoreDBService implements DBBase {
 
   @override
   Future<SystemUser> readUser(String userID) async {
-    print("123123123123");
     DocumentSnapshot _okunanUser =
         await _firebaseDB.collection("users").doc(userID).get();
     Map<String, dynamic> _okunanUserBilgileriMap = _okunanUser.data();
@@ -72,11 +66,24 @@ class FirestoreDBService implements DBBase {
   }
 
   @override
-  Future<bool> updateProfilFoto(String userID, String profilFotoURL) async {
+  Future<bool> updateProfilFoto(SystemUser user, String profilFotoURL) async {
+    PaletteGenerator paletteGenerator =await PaletteGenerator.fromImageProvider(
+      NetworkImage(profilFotoURL),
+    );
+    if(paletteGenerator.dominantColor.color.isLight){
+      if(user.imageHappy != 3){
+        user.imageHappy++;
+      }
+    }else{
+      if(user.imageHappy != 0){
+        user.imageHappy--;
+      }
+    }
+
     await _firebaseDB
         .collection("users")
-        .doc(userID)
-        .update({'profilURL': profilFotoURL});
+        .doc(user.userID)
+        .update({'profilURL': profilFotoURL,'imageHappy':user.imageHappy});
     return true;
   }
 
@@ -132,7 +139,7 @@ class FirestoreDBService implements DBBase {
   // Future<bool> saveMessage(Mesaj kaydedilecekMesaj) {}
   ///note : Canlı sohbet mesaj gönderme işlemi
   @override
-  Future<bool> saveMessage(Mesaj kaydedilecekMesaj) async {
+  Future<bool> saveMessage(SystemUser user,Mesaj kaydedilecekMesaj) async {
     var _mesajID = _firebaseDB.collection("konusmalar").doc().id;
 
     /// mesaj gönderen için kayıt variable.
@@ -181,7 +188,32 @@ class FirestoreDBService implements DBBase {
       "olusturulma_tarihi": FieldValue.serverTimestamp(),
     });
 
+
+    user = messageHappySetter(kaydedilecekMesaj.mesaj,user);
+    await _firebaseDB
+        .collection("users")
+        .doc(kaydedilecekMesaj.kimden)
+        .update({'messageHappy':user.messageHappy});
+
     return true;
+  }
+
+
+  messageHappySetter(String message,SystemUser user){
+
+    List badText = ['salak','aptal','akılsız'];
+
+    bool result = badText.where((element) => message.toLowerCase().contains(element)).isNotEmpty;
+    if(result){
+      if(user.messageHappy != 0){
+        user.messageHappy--;
+      }
+    }else{
+      if(user.messageHappy != 3){
+        user.messageHappy++;
+      }
+    }
+    return user;
   }
 
   @override

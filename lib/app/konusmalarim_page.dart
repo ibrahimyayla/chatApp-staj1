@@ -1,3 +1,8 @@
+import 'package:chat_app/app/kullanicilar.dart';
+import 'package:chat_app/app/sysW/color.dart';
+import 'package:chat_app/app/sysW/customCupertinoNavBar.dart';
+import 'package:chat_app/viewModel/all_users_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/app/sohbet_page.dart';
 import 'package:chat_app/model/konusma.dart';
@@ -5,6 +10,7 @@ import 'package:chat_app/model/systemUser.dart';
 import 'package:chat_app/viewModel/chat_view_model.dart';
 import 'package:chat_app/viewModel/user_model.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/cupertino.dart';
 
 class KonusmalarimPage extends StatefulWidget {
   @override
@@ -15,19 +21,15 @@ class _KonusmalarimPageState extends State<KonusmalarimPage> {
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
   Widget build(BuildContext context) {
     UserModel _userModel = Provider.of<UserModel>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Konusmalarım"),
-      ),
-      body: FutureBuilder<List<Konusma>>(
+    return CupertinoPageScaffold(
+      navigationBar: navigationBarBuilder(context),
+      child: FutureBuilder<List<Konusma>>(
         future: _userModel.getAllConversations(_userModel.user.userID),
         builder: (context, konusmaListesi) {
           print(konusmaListesi.hasData);
@@ -68,16 +70,19 @@ class _KonusmalarimPageState extends State<KonusmalarimPage> {
                           ),
                         ));
                       },
-                      child: ListTile(
-                        title: Text(oankiKonusma.son_yollanan_mesaj),
-                        subtitle: Text(oankiKonusma.konusulanUserName +
-                            "  " +
-                            oankiKonusma.aradakiFark),
-                        leading: CircleAvatar(
-                          /// note : Circle avatar arkasını saydamlaştırma için.
-                          backgroundColor: Colors.grey.withAlpha(40),
-                          backgroundImage:
-                              NetworkImage(oankiKonusma.konusulanUserProfilURL),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: ListTile(
+                          title: Text(oankiKonusma.son_yollanan_mesaj),
+                          subtitle: Text(oankiKonusma.konusulanUserName +
+                              "  " +
+                              oankiKonusma.aradakiFark),
+                          leading: CircleAvatar(
+                            /// note : Circle avatar arkasını saydamlaştırma için.
+                            backgroundColor: Colors.grey.withAlpha(40),
+                            backgroundImage:
+                                NetworkImage(oankiKonusma.konusulanUserProfilURL),
+                          ),
                         ),
                       ),
                     );
@@ -130,13 +135,43 @@ class _KonusmalarimPageState extends State<KonusmalarimPage> {
     return null;
   }
 
-  /* void odulluReklamLoad() {
-    RewardedVideoAd.instance.load(
-        adUnitId: AdmobIslemleri.odulluReklamTest,
-        targetingInfo: AdmobIslemleri.targetingInfo);
-  } */
-
-/*  
-
-  */
+  CustomCupertinoNavigationBar navigationBarBuilder(BuildContext context) {
+    return CustomCupertinoNavigationBar(
+      // padding: EdgeInsetsDirectional.fromSTEB(12, 12, 12, 8),
+      padding: EdgeInsetsDirectional.fromSTEB(8, 15, 15, 8),
+      automaticallyImplyMiddle: true,
+      automaticallyImplyLeading: true,
+      leading: Container(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Düzenle',
+          style: TextStyle(color: Colors.white
+              // fontWeight: FontWeight.
+              ),
+        ),
+      ),
+      trailing: GestureDetector(
+          onTap: () {
+            Navigator.of(context, rootNavigator: true).push(CupertinoPageRoute(
+              builder: (context) => ChangeNotifierProvider(
+                  create: (_) => AllUserViewModel(), child: KullanicilarPage()),
+              fullscreenDialog: true,
+            ));
+          },
+          child: Container(
+            child: Icon(
+              CupertinoIcons.captions_bubble_fill,
+              size: 22,
+              color: Colors.white,
+            ),
+          )),
+      height: 55,
+      middle: Text(
+        'Sohbetler',
+        style: TextStyle(
+            color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: HexColor('128C7E'),
+    );
+  }
 }

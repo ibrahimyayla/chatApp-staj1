@@ -167,9 +167,9 @@ class UserModel extends AuthBase with ChangeNotifier {
   }
 
   Future<String> uploadFile(
-      String userID, String fileType, File profilFoto) async {
+      SystemUser user, String fileType, File profilFoto) async {
     var indirmeLinki =
-        await _userRepository.uploadFile(userID, fileType, profilFoto);
+        await _userRepository.uploadFile(_user, fileType, profilFoto);
     return indirmeLinki;
   }
 

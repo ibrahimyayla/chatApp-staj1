@@ -14,8 +14,8 @@ class ProfilPage extends StatefulWidget {
 
 class _ProfilPageState extends State<ProfilPage> {
   TextEditingController _controllerUserName;
-  File _profilFoto;
-
+  File  _profilFoto;
+  final picker = ImagePicker();
   @override
   void initState() {
     // TODO: implement initState
@@ -37,19 +37,19 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   void _kameradanFotoCek() async {
-    var _yeniResim = await ImagePicker.pickImage(source: ImageSource.camera);
+    var _yeniResim = await picker.getImage(source: ImageSource.camera);
 
     setState(() {
-      _profilFoto = _yeniResim;
+      _profilFoto =  File(_yeniResim.path);
       Navigator.of(context).pop();
     });
   }
 
   void _galeridenResimSec() async {
-    var _yeniResim = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var _yeniResim = await picker.getImage(source: ImageSource.gallery);
 
     setState(() {
-      _profilFoto = _yeniResim;
+      _profilFoto =  File(_yeniResim.path);
       Navigator.of(context).pop();
     });
   }
@@ -213,7 +213,7 @@ class _ProfilPageState extends State<ProfilPage> {
     final _userModel = Provider.of<UserModel>(context, listen: false);
     if (_profilFoto != null) {
       var url = await _userModel.uploadFile(
-          _userModel.user.userID, "profil_foto", _profilFoto);
+          _userModel.user, "profil_foto", _profilFoto);
       //print("gelen url :" + url);
 
       if (url != null) {

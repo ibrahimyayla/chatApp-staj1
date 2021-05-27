@@ -1,3 +1,8 @@
+import 'package:chat_app/app/color_page.dart';
+import 'package:chat_app/app/sysW/color.dart';
+import 'package:chat_app/app/sysW/customCupertinoNavBar.dart';
+import 'package:chat_app/model/systemUser.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/app/sohbet_page.dart';
 import 'package:chat_app/viewModel/all_users_view_model.dart';
@@ -34,34 +39,9 @@ class _KullanicilarPageState extends State<KullanicilarPage> {
   @override
   Widget build(BuildContext context) {
     // final _tumKullanicilarViewModel = Provider.of<AllUserViewModel>(context);
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Kullanicilar"),
-        actions: [
-          /*  FlatButton(
-            child: Text('Next Users'),
-            onPressed: () async {
-              await getUser();
-            },
-          ) */
-        ],
-      ),
-      /* body: Column(
-        children: <Widget>[
-          Expanded(
-            child: _tumKullanicilar.length == 0
-                ? Center(
-                    child: Text("Kullanıcı Yok."),
-                  )
-                : _kullaniciListesiniOlustur(),
-          ),
-          _isLoading ? Center(child: CircularProgressIndicator()) : Container(),
-        ], */
-      /* body: _tumKullanicilar == null
-          ? Center(child: CircularProgressIndicator())
-          : _kullaniciListesiniOlustur(), */
-      body: Consumer<AllUserViewModel>(
+    return CupertinoPageScaffold(
+      navigationBar: navigationBarBuilder(context),
+      child: Consumer<AllUserViewModel>(
         ///model ağaca enjekte edilen nesneyi temsil ediyor.
         builder: (context, model, child) {
           if (model.state == AllUserViewState.Busy) {
@@ -76,8 +56,8 @@ class _KullanicilarPageState extends State<KullanicilarPage> {
                 itemBuilder: (context, index) {
                   /// burası her zaman calısıyor ama is loading false oldugu için gösterilmiyor.
 /* if (index == _tumKullanicilar.length) {
-                      return _yeniElemanlarYukleniyorIndicator();
-                    } */
+                        return _yeniElemanlarYukleniyorIndicator();
+                      } */
                   if (model.kullanicilarListesi.length == 1) {
                     return _kullaniciYokUi();
                   } else if (model.hasMoreLoading &&
@@ -104,15 +84,42 @@ class _KullanicilarPageState extends State<KullanicilarPage> {
       ),
     );
   }
+  
+  CustomCupertinoNavigationBar navigationBarBuilder(BuildContext context) {
+    return CustomCupertinoNavigationBar(
+      padding: EdgeInsetsDirectional.fromSTEB(8, 15, 15, 8),
+      automaticallyImplyLeading: false,
+
+      trailing: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: Text(
+            'Vazgeç',
+            style: TextStyle(color: Colors.white
+              // fontWeight: FontWeight.
+            ),
+          )
+      ),
+      height: 55,
+      middle: Text(
+        'Yeni Sohbet',
+        style: TextStyle(
+            color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: HexColor('128C7E'),
+    );
+  }
 
   Widget _userListeElemaniOlustur(int index) {
     // var _oankiUser = _tumKullanicilar[index];
     final _userModel = Provider.of<UserModel>(context, listen: false);
     final _tumKullanicilarViewModel =
         Provider.of<AllUserViewModel>(context, listen: false);
-    final _oankiUser = _tumKullanicilarViewModel.kullanicilarListesi[index];
+    final SystemUser _oankiUser = _tumKullanicilarViewModel.kullanicilarListesi[index];
     return GestureDetector(
       onTap: () {
+        Navigator.of(context, rootNavigator: true).pop();
         Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
             builder: (context) => ChangeNotifierProvider<ChatViewModel>(
                   create: (context) => ChatViewModel(
@@ -129,9 +136,29 @@ class _KullanicilarPageState extends State<KullanicilarPage> {
             backgroundColor: Colors.grey.withAlpha(40),
             backgroundImage: NetworkImage(_oankiUser.profilURL),
           ),
+          trailing: happyStatus(_oankiUser),
         ),
       ),
     );
+  }
+
+  happyStatus(SystemUser user){
+    num happy = user.imageHappy + user.messageHappy;
+    if(happy<=6 && happy > 4){
+      return Icon(
+        Icons.sentiment_very_satisfied,
+      );
+    }
+    else if(happy <=4 && happy > 2){
+      return Icon(
+        Icons.sentiment_neutral,
+      );
+    }
+    else{
+      return Icon(
+        Icons.sentiment_very_dissatisfied,
+      );
+    }
   }
 
   void _listeScrollListener() {
@@ -191,106 +218,5 @@ class _KullanicilarPageState extends State<KullanicilarPage> {
     );
   }
 
-/*  _yeniElemanlarYukleniyorIndicator() {
-    return Padding(
-      padding: EdgeInsets.all(8),
-      child: Center(
-        child: Opacity(
-            opacity: _isLoading ? 1 : 0,
-            child: _isLoading ? CircularProgressIndicator() : null),
-      ),
-    );
-  } */
-  /* getUser() async {
-    final _userModel = Provider.of<UserModel>(context, listen: false);
-
-    if (!_hasMore) {
-      print("Getirilecek eleman kalmaıd");
-    }
-    if (_isLoading) {
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-    List<SystemUser> users = await _userModel.getUserWithPagination(
-        _enSonGetirilenUser, _getirilecekElemanSayisi);
-    if (_enSonGetirilenUser == null) {
-      _tumKullanicilar = [];
-
-      /// note : Listeye bir seferde birden fazla eleman eklemek için yaz.
-      _tumKullanicilar.addAll(users);
-    } else {
-      _tumKullanicilar.addAll(users);
-    }
-
-    if (users.length < _getirilecekElemanSayisi) {
-      _hasMore = false;
-    }
-
-    _enSonGetirilenUser = _tumKullanicilar.last;
-    setState(() {
-      _isLoading = false;
-    });
-  } */
-/* 
-  _kullaniciListesiniOlustur() {
-    if (_tumKullanicilar.length > 1) {
-      return RefreshIndicator(
-        onRefresh: _kullanicilarListesiniGuncelle,
-        child: ListView.builder(
-            controller: _scrollController,
-            itemBuilder: (context, index) {
-              /// burası her zaman calısıyor ama is loading false oldugu için gösterilmiyor.
-              if (index == _tumKullanicilar.length) {
-                return _yeniElemanlarYukleniyorIndicator();
-              }
-              return _userListeElemaniOlustur(index);
-            },
-            itemCount: _tumKullanicilar.length + 1),
-      );
-    } else {
-      return RefreshIndicator(
-        onRefresh: _kullanicilarListesiniGuncelle,
-        child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
-          child: Container(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Icon(
-                    Icons.supervised_user_circle,
-                    color: Theme.of(context).primaryColor,
-                    size: 120,
-                  ),
-                  Text(
-                    "Henüz Kullanıcı Yok",
-                    style: TextStyle(fontSize: 36),
-                  )
-                ],
-              ),
-            ),
-            height: MediaQuery.of(context).size.height - 150,
-          ),
-        ),
-      );
-    }
-  } */
-
-  /* Future<Null> _kullanicilarListesiniGuncelle() async {
-    setState(() {});
-    await Future.delayed(Duration(seconds: 1));
-    return null;
-  } */
-
-/*   Future<Null> _kullanicilarListesiniGuncelle() async {
-    _tumKullanicilar = [];
-    _hasMore = true;
-    _enSonGetirilenUser = null;
-    // getUser();
-  }
- */
 
 }

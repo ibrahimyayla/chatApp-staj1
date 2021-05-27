@@ -1,3 +1,4 @@
+import 'package:chat_app/app/sysW/color.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
                 )
             ),
 
-            primaryColor:CupertinoColors.activeOrange ,
+            primaryColor:HexColor('128C7E') ,
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
           home: LandingPage()),
